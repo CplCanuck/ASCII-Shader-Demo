@@ -1,0 +1,77 @@
+[gd_scene load_steps=12 format=3 uid="uid://du4d3cig0xhqv"]
+
+[ext_resource type="PackedScene" uid="uid://kj31hys5a3ox" path="res://3D/monk_character/scene.gltf" id="1_ysqli"]
+[ext_resource type="Script" path="res://3D/monk_character/rotate_point.gd" id="2_6je5y"]
+[ext_resource type="Shader" path="res://Shaders/ascii_shader.gdshader" id="2_infd4"]
+[ext_resource type="Texture2D" uid="uid://d1cdhr8y0fj6t" path="res://Shaders/alt_ascii_char_map.bmp" id="4_2j1ec"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_1rhwn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qfvjw"]
+albedo_color = Color(0.172549, 0.235294, 0.588235, 1)
+metallic = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_gr8th"]
+size = Vector2(10, 5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vv53d"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ldqk0"]
+render_priority = 0
+shader = ExtResource("2_infd4")
+shader_parameter/_char_size = 8.0
+shader_parameter/_char_count = 10.0
+shader_parameter/_ascii_tex = ExtResource("4_2j1ec")
+
+[sub_resource type="QuadMesh" id="QuadMesh_becrs"]
+flip_faces = true
+size = Vector2(2, 2)
+
+[sub_resource type="Environment" id="Environment_rd3h6"]
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.0
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="Monk" parent="Environment" instance=ExtResource("1_ysqli")]
+
+[node name="Camera3D" type="Camera3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 3)
+projection = 1
+size = 2.0
+
+[node name="Sphere" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.383009, 0.549477)
+mesh = SubResource("SphereMesh_1rhwn")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_qfvjw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+mesh = SubResource("QuadMesh_gr8th")
+surface_material_override/0 = SubResource("StandardMaterial3D_vv53d")
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="RotatePoint" type="Node3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0.5)
+script = ExtResource("2_6je5y")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Lights/RotatePoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+light_energy = 4.0
+
+[node name="PostProcessPasses" type="Node3D" parent="."]
+
+[node name="SS_PostProcess" type="MeshInstance3D" parent="PostProcessPasses"]
+material_override = SubResource("ShaderMaterial_ldqk0")
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_becrs")
+skeleton = NodePath("../..")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_rd3h6")
